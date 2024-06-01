@@ -237,10 +237,10 @@ const createStore = <T extends NestedRecord>(nameSpace: string, store: T) => {
       setDataStore(nameSpace, key, data);
     };
 
-    const store = {
+    const store = [
       data,
       set,
-    };
+    ];
 
     return store;
   };

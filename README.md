@@ -40,8 +40,8 @@ import React from 'react';
 import { useStore } from 'your-package-name';
 
 const MyComponent = () => {
-  const { data: aValue, set: setAValue } = useStore('a');
-  const { data: bCValue, set: setBCValue } = useStore('b.c');
+  const [ aValue, setAValue ] = useStore('a');
+  const [ bCValue, setBCValue ] = useStore('b.c');
 
   return (
     <div>
