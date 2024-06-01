@@ -1,13 +1,14 @@
 import { useMemo, useSyncExternalStore } from "react";
 
-type NestedRecord = Record<string, any>;
-type NestedKey<T> = {
+export type NestedRecord = Record<string, any>;
+
+export type NestedKey<T> = {
   [K in keyof T & (string | number)]: T[K] extends object
     ? `${K}` | `${K}.${NestedKey<T[K]>}`
     : `${K}`;
 }[keyof T & (string | number)];
 
-type NestedValue<T, K extends string> = K extends `${infer P}.${infer R}`
+export type NestedValue<T, K extends string> = K extends `${infer P}.${infer R}`
   ? P extends keyof T
     ? R extends NestedKey<T[P]>
       ? NestedValue<T[P], R>
@@ -17,28 +18,27 @@ type NestedValue<T, K extends string> = K extends `${infer P}.${infer R}`
   ? T[K]
   : never;
 
-type Listener = () => void;
-type ListenersRecord<T> = {
+export type Listener = () => void;
+
+export type ListenersRecord<T> = {
   listeners: Listener[];
   children: {
-    [K in keyof T]?: T[K] extends object
-      ? ListenersRecord<T[K]>
-      : ListenersRecord<T[K]>;
+    [K in keyof T]?: T[K] extends object ? ListenersRecord<T[K]> : ListenersRecord<T[K]>;
   };
 };
-const listenersRecord: ListenersRecord<NestedRecord> = {
-  listeners: [],
-  children: {},
-};
-type GlobalListenerStoreEntryType<T> = ListenersRecord<T>;
-type GlobalListenerStoreType<T extends NestedRecord> = Record<
-  string,
-  GlobalListenerStoreEntryType<T>
->;
-let globalListenerStore: GlobalListenerStoreType<NestedRecord> = {};
+
+export type GlobalListenerStoreType<T extends NestedRecord> = Record<string, ListenersRecord<T>>;
 
 export type GlobalDataStoreEntryType = NestedRecord;
 export type GlobalDataStoreType = Record<string, GlobalDataStoreEntryType>;
+
+const listenersRecord: ListenersRecord<NestedRecord> = {
+  listeners: [],
+  children: {}
+};
+
+let globalListenerStore: GlobalListenerStoreType<NestedRecord> = {};
+
 let globalDataStore: GlobalDataStoreType = {};
 
 type Namespace = keyof typeof globalListenerStore;
@@ -172,6 +172,11 @@ const setDataStore = <
   callListeners(nameSpace, key);
 };
 
+// Type guard for Function
+function isFunction<T>(value: unknown): value is (data: T) => T {
+  return typeof value === "function";
+}
+
 /** Function to create a global store
  * @param nameSpace - The namespace of the store - should be unique
  * @returns {useStore, setDataStore} - The useStore hook and the setDataStore function
@@ -181,6 +186,7 @@ const createListenerStore = <T extends NestedRecord>(nameSpace: string, store: T
   if (!globalDataStore[nameSpace]) {
     globalDataStore[nameSpace] = externalDataStore;
   }
+  
 
   /** Function to set the store of this namespace
    * @param key - The key of the store to be updated
@@ -193,12 +199,12 @@ const createListenerStore = <T extends NestedRecord>(nameSpace: string, store: T
     data: P | ((data: P) => P),
     key?: K,
   ) => {
-    if (data instanceof Function) {
+    if (isFunction<any>(data)) {
       const newData = data(getSnapshot<P>(nameSpace, key));
-      setDataStore(newData, nameSpace, key);
-      return;
+      return setDataStore(newData, nameSpace, key);
     }
-    setDataStore(data, nameSpace, key);
+      // this allows ts to compile without errors
+    setDataStore(data as any, nameSpace, key);
   };
 
   /** Hook to use to create a usable store with a signal to update whenever the value is changed
@@ -228,12 +234,12 @@ const createListenerStore = <T extends NestedRecord>(nameSpace: string, store: T
      * Set the store and calls all listeners to update the ui
      */
     const set = (data: P | ((data: P) => P)) => {
-      if (data instanceof Function) {
-        const newData = data(getSnapshot(nameSpace, key));
-        setDataStore(newData, nameSpace, key);
-        return;
+      if (isFunction<any>(data)) {
+        const newData = data(getSnapshot<P>(nameSpace, key));
+        return setDataStore(newData, nameSpace, key);
       }
-      setDataStore(data, nameSpace, key);
+      // this allows ts to compile without errors
+      setDataStore(data as any, nameSpace, key);
     };
 
     const store = [data, set] as [P, (data: P | ((data: P) => P)) => void];
