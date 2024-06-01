@@ -1,6 +1,6 @@
 {
   "name": "react-listenerstore",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A lightweight global state management solution for React applications with support for nested state and listeners.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -32,8 +32,8 @@
   "homepage": "https://github.com/solitro/react-external-store#readme",
   "dependencies": {
     "@types/node": "^20.13.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@types/prop-types": "^15.7.12",
