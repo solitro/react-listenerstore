@@ -1,3 +1,3 @@
-import createExternalStore from './useStore';
+import {createListenerStore} from './useStore';
 
-export default createExternalStore;
+export {createListenerStore};
