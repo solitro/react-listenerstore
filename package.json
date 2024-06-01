@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/solitro/react-external-store/issues"
   },
-  "homepage": "https://github.com/solitro/react-external-store#readme"
+  "homepage": "https://github.com/solitro/react-external-store#readme",
+  "dependencies": {
+    "react": "^18.3.1"
+  }
 }
