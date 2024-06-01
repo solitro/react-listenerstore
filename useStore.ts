@@ -244,4 +244,4 @@ const createStore = <T extends NestedRecord>(nameSpace: string, store: T) => {
   return { useStore, setStore };
 };
 
-export default createStore;
+export {createStore};
