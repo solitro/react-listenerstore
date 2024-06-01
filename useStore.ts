@@ -176,7 +176,7 @@ const setDataStore = <
  * @param nameSpace - The namespace of the store - should be unique
  * @returns {useStore, setDataStore} - The useStore hook and the setDataStore function
  */
-const createStore = <T extends NestedRecord>(nameSpace: string, store: T) => {
+const createListenerStore = <T extends NestedRecord>(nameSpace: string, store: T) => {
   const externalDataStore = globalDataStore[nameSpace] || store;
   if (!globalDataStore[nameSpace]) {
     globalDataStore[nameSpace] = externalDataStore;
@@ -244,4 +244,4 @@ const createStore = <T extends NestedRecord>(nameSpace: string, store: T) => {
   return { useStore, setStore };
 };
 
-export {createStore};
+export {createListenerStore};
