@@ -14,16 +14,16 @@ A lightweight, flexible global state management solution for React applications.
 To install the module, you can use npm or yarn:
 
 ```sh
-npm install your-package-name
+npm install react-external-store
 # or
-yarn add your-package-name
+yarn add react-external-store
 ```
 
 ## Usage
 1. `Creating a Store` - To create a store, use the createStore function. Provide a unique namespace and the initial state.
 
 ```typescript
-import createStore from 'your-package-name';
+import createStore from 'react-external-store';
 
 const { useStore, setStore } = createStore('myNamespace', {
   a: 1,
@@ -37,7 +37,7 @@ const { useStore, setStore } = createStore('myNamespace', {
 
 ```tsx
 import React from 'react';
-import { useStore } from 'your-package-name';
+import { useStore } from 'react-external-store';
 
 const MyComponent = () => {
   const [ aValue, setAValue ] = useStore('a');
@@ -62,7 +62,7 @@ export default MyComponent;
 3. `Updating the Store Outside of Components` - Use the setStore function to update the store outside of a component.
 
 ```typescript
-import { setStore } from 'your-package-name';
+import { setStore } from 'react-external-store';
 
 // Update store directly
 setStore('a', 10);
