@@ -189,7 +189,7 @@ const createListenerStore = <T extends NestedRecord>(nameSpace: string, store: T
    * This function should be used if data needs to be updated outside of the useStore hook
    * This function will call all listeners related to the key to update the ui
    */
-  const setStore = <K extends NestedKey<T>, P extends NestedValue<T, K>>(
+  const setListenerStore = <K extends NestedKey<T>, P extends NestedValue<T, K>>(
     data: P | ((data: P) => P),
     key?: K,
   ) => {
@@ -206,7 +206,7 @@ const createListenerStore = <T extends NestedRecord>(nameSpace: string, store: T
    * @param initStore - The initial value of the store
    * @returns {data, set} - The data and the set function
    */
-  const useStore = <K extends NestedKey<T>, P extends NestedValue<T, K>>(
+  const useListener = <K extends NestedKey<T>, P extends NestedValue<T, K>>(
     key: K,
   ) => {
     const memoizedSubscribe = useMemo(
@@ -241,7 +241,7 @@ const createListenerStore = <T extends NestedRecord>(nameSpace: string, store: T
     return store;
   };
 
-  return { useStore, setStore };
+  return { useListener, setListenerStore };
 };
 
 export {createListenerStore};
