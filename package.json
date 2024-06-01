@@ -1,7 +1,7 @@
 {
-  "name": "react-external-store",
+  "name": "react-listenerstore",
   "version": "1.0.0",
-  "description": "lightweight store in memory to manage state globally across app",
+  "description": "A lightweight global state management solution for React applications with support for nested state and listeners.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,14 +10,9 @@
     "type": "git",
     "url": "git+https://github.com/solitro/react-external-store.git"
   },
-  "keywords": [
-    "react",
-    "useSyncExternalStore",
-    "state",
-    "signals"
-  ],
+  "keywords": ["react", "global state", "nested state", "listeners", "state management", "hooks", "reactive"],
   "author": "Justin Solitro",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/solitro/react-external-store/issues"
   },

@@ -1,6 +1,6 @@
-# Global Store Module
+# react-listenerstore
 
-A lightweight, flexible global state management solution for React applications. This module provides a way to create and manage nested global state stores with listener support for updates.
+A lightweight global state management solution for React applications with support for nested state and listeners.
 
 ## Features
 
@@ -14,18 +14,19 @@ A lightweight, flexible global state management solution for React applications.
 To install the module, you can use npm or yarn:
 
 ```sh
-npm install react-external-store
+npm install react-listenerstore
 # or
-yarn add react-external-store
+yarn add react-listenerstore
 ```
 
 ## Usage
-1. `Creating a Store` - To create a store, use the createStore function. Provide a unique namespace and the initial state.
+1. `Creating a Store` - To create a store, use the \`createListenerStore\` function. Provide a unique namespace and the initial state.
 
 ```typescript
-import createStore from 'react-external-store';
+// store.ts
+import { createListenerStore } from 'react-listenerstore';
 
-const { useStore, setStore } = createStore('myNamespace', {
+const { useListener, setListenerStore } = createListenerStore('myNamespace', {
   a: 1,
   b: {
     c: 2,
@@ -33,15 +34,15 @@ const { useStore, setStore } = createStore('myNamespace', {
   }
 });
 ```
-2. `Using the Store in a Component` - Use the useStore hook to access and update the store within your components.
+1. `Using the Store in a Component` - Use the \`useListener\` hook to access and update the store within your components.
 
 ```tsx
 import React from 'react';
-import { useStore } from 'react-external-store';
+import { useListener } from './store.ts';
 
 const MyComponent = () => {
-  const [ aValue, setAValue ] = useStore('a');
-  const [ bCValue, setBCValue ] = useStore('b.c');
+  const [ aValue, setAValue ] = useListener('a');
+  const [ bCValue, setBCValue ] = useListener('b.c');
 
   return (
     <div>
@@ -59,62 +60,44 @@ const MyComponent = () => {
 
 export default MyComponent;
 ```
-3. `Updating the Store Outside of Components` - Use the setStore function to update the store outside of a component.
+3. `Updating the Store Outside of Components` - Use the setListenerStore function to update the store outside of a component.
 
 ```typescript
-import { setStore } from 'react-external-store';
+import { setListenerStore } from './store.ts';
 
 // Update store directly
-setStore('a', 10);
+setListenerStore('a', 10);
 
 // Update store using a function
-setStore('b.c', (currentValue) => currentValue + 5);
+setListenerStore('b.c', (currentValue) => currentValue + 5);
 ```
 
 ## API
-`createStore(namespace: string, initialState: T)`
+#### `createListenerStore(namespace: string, initialState: T)`
 Creates a new global store.
 
 **Parameters**
 `namespace (string)`: A unique name for the store.
 `initialState (T)`: The initial state object.
 **Returns**
-`useStore`: A hook to access and update the store within components.
-`setStore`: A function to update the store outside of components.
-`useStore(key: K)`: A React hook to access and update the store.
+`useListener`: A hook to access and update the store within components.
+`setListenerStore`: A function to update the store outside of components.
+
+#### `useListener(key: K)`
+A React hook to access and update the store.
 
 **Parameters**
 `key (K)`: The key to access in the store. Supports nested keys (e.g., a, b.c).
-Returns
+**Returns**
 `data`: The current value at the specified key.
 set: A function to update the value at the specified key.
-`setStore(key: K, data: P | ((data: P) => P))`: Updates the store outside of components.
-
-**Parameters**
-`key (K)`: The key to update in the store. Supports nested keys (e.g., a, b.c).
-`data (P | ((data: P) => P))`: The new data to set, or a function that receives the current data and returns the new data.
+`set(data: P | ((data: P) => P))`: Updates the key's value in the store.
 
 #### License
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
 #### Contribution
 Feel free to open issues or submit pull requests if you have any improvements or bug fixes.
 
 #### Acknowledgements
 Thanks to the open-source community for continuous inspiration and support.
-
-By following this README, users should be able to quickly understand how to install, use, and contribute to your global state management module.
-
-```markdown
-### Explanation:
-
-- **Features**: A brief overview of the module's features.
-- **Installation**: Instructions on how to install the module.
-- **Usage**: Step-by-step guide on how to create a store, use the store in a component, and update the store outside of a component.
-- **API**: Detailed explanation of the functions provided by the module (`createStore`, `useStore`, `setStore`).
-- **License**: Information about the project's license.
-- **Contribution**: Encouragement for users to contribute to the project.
-- **Acknowledgements**: Acknowledgement of the open-source community's support. 
-
-This structure helps users understand the purpose and usage of the module and provides a clear reference for the available functions and their usage.
-```
