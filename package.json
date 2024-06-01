@@ -1,0 +1,25 @@
+{
+  "name": "react-external-store",
+  "version": "1.0.0",
+  "description": "lightweight store in memory to manage state globally across app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/solitro/react-external-store.git"
+  },
+  "keywords": [
+    "react",
+    "useSyncExternalStore",
+    "state",
+    "signals"
+  ],
+  "author": "Justin Solitro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/solitro/react-external-store/issues"
+  },
+  "homepage": "https://github.com/solitro/react-external-store#readme"
+}
