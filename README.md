@@ -47,7 +47,7 @@ const MyComponent = () => {
     <div>
       <div>
         A Value: {aValue}
-        <button onClick={() => setAValue(aValue + 1)}>Increment A</button>
+        <button onClick={() => setAValue((prev) => prev + 1)}>Increment A</button>
       </div>
       <div>
         B.C Value: {bCValue}

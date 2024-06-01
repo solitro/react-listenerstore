@@ -45,11 +45,14 @@ type Namespace = keyof typeof globalListenerStore;
 
 const getCurrentStore = <T extends NestedRecord, K extends NestedKey<T>>(
   nameSpace: Namespace,
-  key: K,
+  key?: K,
 ) => {
+  let currentDataStore = globalDataStore[nameSpace];
+  if (!key) {
+    return currentDataStore;
+  }
   const keyParts = key.split(".");
   let currentKey = keyParts.shift();
-  let currentDataStore = globalDataStore[nameSpace];
   while (currentKey) {
     currentDataStore = currentDataStore[currentKey] as NestedRecord;
     currentKey = keyParts.shift();
@@ -59,8 +62,11 @@ const getCurrentStore = <T extends NestedRecord, K extends NestedKey<T>>(
 
 const getCurrentStoreParent = <T extends NestedRecord, K extends NestedKey<T>>(
   nameSpace: Namespace,
-  key: K,
+  key?: K,
 ) => {
+  if (!key) {
+    return globalDataStore;
+  }
   const keyParts = key.split(".");
   let currentDataStore = globalDataStore[nameSpace];
   keyParts.pop();
@@ -77,13 +83,16 @@ const getCurrentListenerStore = <
   K extends NestedKey<T>,
 >(
   nameSpace: Namespace,
-  key: K,
+  key?: K,
 ) => {
   const externalListenerStore = globalListenerStore?.[nameSpace] || {
     listeners: [...listenersRecord.listeners],
     children: { ...listenersRecord.children },
   };
   globalListenerStore[nameSpace] = externalListenerStore;
+  if (!key) {
+    return externalListenerStore;
+  }
   const keyParts = key.split(".");
   let currentKey = keyParts.shift();
   let currentListenerStore = externalListenerStore;
@@ -102,48 +111,41 @@ const getCurrentListenerStore = <
 };
 
 const setListenerStore = <T extends NestedRecord, K extends NestedKey<T>>(
-  nameSpace: Namespace,
-  key: K,
   listener: Listener | Listener[],
+  nameSpace: Namespace,
+  key?: K,
 ) => {
-  console.log(`Setting listener for ${nameSpace} ${key}`);
   const currentListenerStore = getCurrentListenerStore(nameSpace, key);
   const listeners = currentListenerStore?.listeners || [];
   listener = Array.isArray(listener) ? listener : [listener];
   currentListenerStore.listeners = [...listeners, ...listener];
   globalListenerStore = { ...globalListenerStore };
-  console.log(
-    `Listeners for ${nameSpace} ${key}`,
-    currentListenerStore,
-    globalListenerStore,
-  );
 };
 
 const subscribe = <T extends NestedRecord, K extends NestedKey<T>>(
-  nameSpace: Namespace,
-  key: K,
   listener: Listener,
+  nameSpace: Namespace,
+  key?: K,
 ) => {
-  setListenerStore(nameSpace, key, listener);
+  setListenerStore(listener, nameSpace, key);
   return () => {
     const listenerStore = getCurrentListenerStore(nameSpace, key);
     listenerStore.listeners = listenerStore.listeners.filter(
       (l) => l !== listener,
     );
-    setListenerStore(nameSpace, key, listenerStore.listeners);
+    setListenerStore(listenerStore.listeners, nameSpace, key);
   };
 };
 
-const getSnapshot = <T>(nameSpace: string, key: string) => {
-  console.log("globalDataStore", globalDataStore);
+const getSnapshot = <T>(nameSpace: string, key?: string) => {
   const store = getCurrentStore(nameSpace, key);
   if (!store) {
-    throw new Error(`Key not found in ${namespace} store`);
+    throw new Error(`Key not found in ${nameSpace} store`);
   }
   return store as T;
 };
 
-const callListeners = (nameSpace: string, key: string) => {
+const callListeners = (nameSpace: string, key?: string) => {
   const listener = getCurrentListenerStore(nameSpace, key);
   const listeners = listener?.listeners;
   console.log(`calling ${listeners?.length} listeners`);
@@ -155,19 +157,17 @@ const setDataStore = <
   K extends NestedKey<T>,
   P extends NestedValue<T, K>,
 >(
-  nameSpace: Namespace,
-  key: K,
   data: P,
+  nameSpace: Namespace,
+  key?: K,
 ) => {
-  let parentStore = getCurrentStoreParent(nameSpace, key);
-  const keyParts = key.split(".");
-  const lastKey = keyParts.pop();
-  if (!lastKey) {
-    throw new Error("Key not found");
+  if (key) {
+    let parentStore = getCurrentStoreParent(nameSpace, key);
+    const lastKey = key.split(".").pop() as string;
+    parentStore[lastKey] = data;
+  } else {
+    globalDataStore[nameSpace] = data;
   }
-  console.log("Setting data", parentStore, lastKey, data);
-  parentStore[lastKey] = data;
-  console.log("Set data", parentStore, lastKey, data);
   globalDataStore = { ...globalDataStore };
   callListeners(nameSpace, key);
 };
@@ -181,7 +181,6 @@ const createStore = <T extends NestedRecord>(nameSpace: string, store: T) => {
   if (!globalDataStore[nameSpace]) {
     globalDataStore[nameSpace] = externalDataStore;
   }
-  console.log("Creating store", nameSpace, globalDataStore);
 
   /** Function to set the store of this namespace
    * @param key - The key of the store to be updated
@@ -191,15 +190,15 @@ const createStore = <T extends NestedRecord>(nameSpace: string, store: T) => {
    * This function will call all listeners related to the key to update the ui
    */
   const setStore = <K extends NestedKey<T>, P extends NestedValue<T, K>>(
-    key: K,
     data: P | ((data: P) => P),
+    key?: K,
   ) => {
     if (data instanceof Function) {
       const newData = data(getSnapshot<P>(nameSpace, key));
-      setDataStore(nameSpace, key, newData);
+      setDataStore(newData, nameSpace, key);
       return;
     }
-    setDataStore(nameSpace, key, data);
+    setDataStore(data, nameSpace, key);
   };
 
   /** Hook to use to create a usable store with a signal to update whenever the value is changed
@@ -211,7 +210,7 @@ const createStore = <T extends NestedRecord>(nameSpace: string, store: T) => {
     key: K,
   ) => {
     const memoizedSubscribe = useMemo(
-      () => (listener: Listener) => subscribe(nameSpace, key, listener),
+      () => (listener: Listener) => subscribe(listener, nameSpace, key),
       [],
     );
 
@@ -231,16 +230,13 @@ const createStore = <T extends NestedRecord>(nameSpace: string, store: T) => {
     const set = (data: P | ((data: P) => P)) => {
       if (data instanceof Function) {
         const newData = data(getSnapshot(nameSpace, key));
-        setDataStore(nameSpace, key, newData);
+        setDataStore(newData, nameSpace, key);
         return;
       }
-      setDataStore(nameSpace, key, data);
+      setDataStore(data, nameSpace, key);
     };
 
-    const store = [
-      data,
-      set,
-    ];
+    const store = [data, set] as [P, (data: P | ((data: P) => P)) => void];
 
     return store;
   };
