@@ -112,15 +112,48 @@ const getCurrentListenerStore = <
   return currentListenerStore;
 };
 
-const setListenerStore = <T extends NestedRecord, K extends NestedKey<T>>(
+const addListenerToStore = <T extends NestedRecord, K extends NestedKey<T>>(
   listener: Listener | Listener[],
   nameSpace: Namespace,
   key?: K,
 ) => {
-  const currentListenerStore = getCurrentListenerStore(nameSpace, key);
-  const listeners = currentListenerStore?.listeners || [];
+  // step through each store and 
   listener = Array.isArray(listener) ? listener : [listener];
+  const keys = key?.split(".") || [];
+  let currentListenerStore = globalListenerStore[nameSpace] || {...listenersRecord};
+  globalListenerStore[nameSpace] = {...currentListenerStore};
+  let listeners = currentListenerStore.listeners;
   currentListenerStore.listeners = [...listeners, ...listener];
+  for (const key of keys){
+    let nextStore = currentListenerStore.children?.[key] || {...listenersRecord};
+    currentListenerStore.children[key] = nextStore;
+    listeners = nextStore.listeners;
+    nextStore.listeners = [...listeners, ...listener];
+    currentListenerStore = nextStore;
+  }
+  globalListenerStore = { ...globalListenerStore };
+};
+
+const removeListenerFromStore = <T extends NestedRecord, K extends NestedKey<T>>(
+  listener: Listener | Listener[],
+  nameSpace: Namespace,
+  key?: K,
+) => {
+  listener = Array.isArray(listener) ? listener : [listener];
+  const keys = key?.split(".") || [];
+  let currentListenerStore = globalListenerStore[nameSpace] || {...listenersRecord};
+  globalListenerStore[nameSpace] = {...currentListenerStore};
+  currentListenerStore.listeners = currentListenerStore.listeners.filter(
+    (l) => !listener.includes(l),
+  );
+  for (const key of keys){
+    let nextStore = currentListenerStore.children?.[key] || {...listenersRecord};
+    currentListenerStore.children[key] = nextStore;
+    currentListenerStore.listeners = currentListenerStore.listeners.filter(
+      (l) => !listener.includes(l),
+    );
+    currentListenerStore = nextStore;
+  }
   globalListenerStore = { ...globalListenerStore };
 };
 
@@ -129,13 +162,13 @@ const subscribe = <T extends NestedRecord, K extends NestedKey<T>>(
   nameSpace: Namespace,
   key?: K,
 ) => {
-  setListenerStore(listener, nameSpace, key);
+  addListenerToStore(listener, nameSpace, key);
   return () => {
     const listenerStore = getCurrentListenerStore(nameSpace, key);
     listenerStore.listeners = listenerStore.listeners.filter(
       (l) => l !== listener,
     );
-    setListenerStore(listenerStore.listeners, nameSpace, key);
+    removeListenerFromStore(listenerStore.listeners, nameSpace, key);
   };
 };
 
@@ -157,10 +190,6 @@ const callListeners = (nameSpace: string, key?: string) => {
     keys?.pop();
   } while(keys?.length)
   globalListenerStore[nameSpace].listeners.forEach((listener) => listener());
-  // const listener = getCurrentListenerStore(nameSpace, key);
-  // const listeners = listener?.listeners;
-  // console.log(`calling ${listeners?.length} listeners`);
-  // listeners?.forEach((listener) => listener());
 };
 
 const setDataStore = <
@@ -187,7 +216,7 @@ const setDataStore = <
         parentStore[currentKey] = shallowCopy(currentStore);
         currentStore = parentStore;
         parentStore = getCurrentStoreParent(nameSpace, keys.join("."));
-      } while (keys.length)
+      } while (currentKey)
     }
   } else {
     globalDataStore[nameSpace] = data;
