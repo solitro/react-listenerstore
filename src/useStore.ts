@@ -123,34 +123,33 @@ const addListenerToStore = <T extends NestedRecord, K extends NestedKey<T>>(
   let currentListenerStore = globalListenerStore[nameSpace] || {...listenersRecord};
   globalListenerStore[nameSpace] = {...currentListenerStore};
   let listeners = currentListenerStore.listeners;
-  currentListenerStore.listeners = [...listeners, ...listener];
+  currentListenerStore.listeners = [...new Set([...listeners, ...listener])];
   for (const key of keys){
     let nextStore = currentListenerStore.children?.[key] || {...listenersRecord};
     currentListenerStore.children[key] = nextStore;
     listeners = nextStore.listeners;
-    nextStore.listeners = [...listeners, ...listener];
+    nextStore.listeners = [...new Set([...listeners, ...listener])];
     currentListenerStore = nextStore;
   }
   globalListenerStore = { ...globalListenerStore };
 };
 
 const removeListenerFromStore = <T extends NestedRecord, K extends NestedKey<T>>(
-  listener: Listener | Listener[],
+  listener: Listener,
   nameSpace: Namespace,
   key?: K,
 ) => {
-  listener = Array.isArray(listener) ? listener : [listener];
   const keys = key?.split(".") || [];
   let currentListenerStore = globalListenerStore[nameSpace] || {...listenersRecord};
   globalListenerStore[nameSpace] = {...currentListenerStore};
   currentListenerStore.listeners = currentListenerStore.listeners.filter(
-    (l) => !listener.includes(l),
+    (l) => l !== listener
   );
   for (const key of keys){
     let nextStore = currentListenerStore.children?.[key] || {...listenersRecord};
     currentListenerStore.children[key] = nextStore;
-    currentListenerStore.listeners = currentListenerStore.listeners.filter(
-      (l) => !listener.includes(l),
+    nextStore.listeners = nextStore.listeners.filter(
+      (l) => l !== listener
     );
     currentListenerStore = nextStore;
   }
@@ -181,7 +180,6 @@ const callListeners = (nameSpace: string, key?: string) => {
   do {
     const listener = getCurrentListenerStore(nameSpace, keys?.join("."));
     const listeners = listener?.listeners;
-    console.log(`calling ${listeners?.length} listeners`);
     listeners?.forEach((listener) => listener());
     keys?.pop();
   } while(keys?.length)
