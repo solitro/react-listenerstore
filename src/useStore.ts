@@ -164,11 +164,7 @@ const subscribe = <T extends NestedRecord, K extends NestedKey<T>>(
 ) => {
   addListenerToStore(listener, nameSpace, key);
   return () => {
-    const listenerStore = getCurrentListenerStore(nameSpace, key);
-    listenerStore.listeners = listenerStore.listeners.filter(
-      (l) => l !== listener,
-    );
-    removeListenerFromStore(listenerStore.listeners, nameSpace, key);
+    removeListenerFromStore(listener, nameSpace, key);
   };
 };
 
