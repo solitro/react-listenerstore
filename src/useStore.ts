@@ -1,4 +1,6 @@
 import { useMemo, useSyncExternalStore } from "react";
+import { shallowCopy } from "./shallowCopy";
+import { get } from "http";
 
 export type NestedRecord = Record<string, any>;
 
@@ -146,10 +148,19 @@ const getSnapshot = <T>(nameSpace: string, key?: string) => {
 };
 
 const callListeners = (nameSpace: string, key?: string) => {
-  const listener = getCurrentListenerStore(nameSpace, key);
-  const listeners = listener?.listeners;
-  console.log(`calling ${listeners?.length} listeners`);
-  listeners?.forEach((listener) => listener());
+  const keys = key?.split(".");
+  do {
+    const listener = getCurrentListenerStore(nameSpace, keys?.join("."));
+    const listeners = listener?.listeners;
+    console.log(`calling ${listeners?.length} listeners`);
+    listeners?.forEach((listener) => listener());
+    keys?.pop();
+  } while(keys?.length)
+  globalListenerStore[nameSpace].listeners.forEach((listener) => listener());
+  // const listener = getCurrentListenerStore(nameSpace, key);
+  // const listeners = listener?.listeners;
+  // console.log(`calling ${listeners?.length} listeners`);
+  // listeners?.forEach((listener) => listener());
 };
 
 const setDataStore = <
@@ -163,8 +174,21 @@ const setDataStore = <
 ) => {
   if (key) {
     let parentStore = getCurrentStoreParent(nameSpace, key);
-    const lastKey = key.split(".").pop() as string;
-    parentStore[lastKey] = data;
+    const keys = key.split(".");
+    let currentKey = keys.pop() as string;
+    const newValueIsDifferent = !Object.is(parentStore[currentKey], data);
+    parentStore[currentKey] = data
+    // set parent stores to new values
+    if (newValueIsDifferent) {
+      let currentStore = parentStore;
+      parentStore = getCurrentStoreParent(nameSpace, keys.join("."));
+      do {
+        currentKey = keys.pop() as string;
+        parentStore[currentKey] = shallowCopy(currentStore);
+        currentStore = parentStore;
+        parentStore = getCurrentStoreParent(nameSpace, keys.join("."));
+      } while (keys.length)
+    }
   } else {
     globalDataStore[nameSpace] = data;
   }
