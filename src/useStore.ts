@@ -184,9 +184,9 @@ const subscribe = <T extends NestedRecord, K extends NestedKey<T>>(
 
 const getSnapshot = <T>(nameSpace: string, key?: string) => {
 	const store = getCurrentStore(nameSpace, key);
-	if (!store) {
-		throw new Error(`Key not found in ${nameSpace} store`);
-	}
+	// if (!store) {
+	// 	throw new Error(`Key not found in ${nameSpace} store`);
+	// }
 	return store as T;
 };
 
