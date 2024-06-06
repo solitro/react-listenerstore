@@ -1,45 +1,45 @@
 {
-  "name": "react-listenerstore",
-  "version": "1.1.0",
-  "description": "A lightweight global state management solution for React applications with support for nested state and listeners.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "type": "module",
-  "scripts": {
-    "prepublish": "npm run build-trace",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "build-trace": "tsc --traceResolution"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/solitro/react-external-store.git"
-  },
-  "keywords": [
-    "react",
-    "global state",
-    "nested state",
-    "listeners",
-    "state management",
-    "hooks",
-    "reactive"
-  ],
-  "author": "Justin Solitro",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/solitro/react-external-store/issues"
-  },
-  "homepage": "https://github.com/solitro/react-external-store#readme",
-  "dependencies": {
-    "@types/node": "^20.13.0",
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
-  },
-  "devDependencies": {
-    "@types/prop-types": "^15.7.12",
-    "@types/react": ">=18.0.0",
-    "@types/react-dom": ">=18.0.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
-  }
+	"name": "react-listenerstore",
+	"version": "1.1.1",
+	"description": "A lightweight global state management solution for React applications with support for nested state and listeners.",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"type": "module",
+	"scripts": {
+		"prepublish": "npm run build-trace",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "tsc",
+		"build-trace": "tsc --traceResolution"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/solitro/react-external-store.git"
+	},
+	"keywords": [
+		"react",
+		"global state",
+		"nested state",
+		"listeners",
+		"state management",
+		"hooks",
+		"reactive"
+	],
+	"author": "Justin Solitro",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/solitro/react-external-store/issues"
+	},
+	"homepage": "https://github.com/solitro/react-external-store#readme",
+	"dependencies": {
+		"@types/node": "^20.13.0",
+		"react": ">=18.0.0",
+		"react-dom": ">=18.0.0"
+	},
+	"devDependencies": {
+		"@types/prop-types": "^15.7.12",
+		"@types/react": ">=18.0.0",
+		"@types/react-dom": ">=18.0.0",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.4.5"
+	}
 }
