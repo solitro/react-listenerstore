@@ -317,8 +317,8 @@ const createListenerStore = <T extends NestedRecord>(
 
 		return store;
 	};
-
-	return { useListener, setListenerStore };
+	const listenerStore = shallowCopy(globalDataStore[nameSpace] as T);
+	return { useListener, setListenerStore, listenerStore };
 };
 
 export { createListenerStore };
