@@ -5,11 +5,16 @@ export type NestedRecord = Record<string, any>;
 
 export type NestedKey<T> =
 	| {
-			[K in keyof T & (string | number)]: T[K] extends object
+			[K in keyof T & (string | number)]: T[K] extends Array<any>
+				? `${K}`
+				: T[K] extends Map<any, any>
+				? `${K}`
+				: T[K] extends Function
+				? `${K}`
+				: T[K] extends object
 				? `${K}` | `${K}.${NestedKey<T[K]>}`
 				: `${K}`;
-	  }[keyof T & (string | number)]
-	| undefined;
+	  }[keyof T & (string | number)];
 
 export type NestedValue<T, K = undefined> = K extends undefined
 	? T
