@@ -69,6 +69,9 @@ const getCurrentStore = <T extends NestedRecord, K extends NestedKey<T>>(
 	const keyParts = key.split(".");
 	let currentKey = keyParts.shift();
 	while (currentKey) {
+		if (keyParts.length > 0 && !currentDataStore[currentKey]) {
+			currentDataStore[currentKey] = {};
+		}
 		currentDataStore = currentDataStore[currentKey] as NestedRecord;
 		currentKey = keyParts.shift();
 	}
@@ -282,7 +285,7 @@ const createListenerStore = <T extends NestedRecord>(
 
 	/** Hook to use to create a usable store with a signal to update whenever the value is changed
 	 * @param key - The key of the store - should be unique
-	 * @param initStore - The initial value of the store
+	 * @param initStore - The initial value of the store if none exists
 	 * @returns {data, set} - The data and the set function
 	 */
 	const useListener = <
