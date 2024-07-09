@@ -268,19 +268,13 @@ const createListenerStore = <T extends NestedRecord>(
 	 * This function should be used if data needs to be updated outside of the useStore hook
 	 * This function will call all listeners related to the key to update the ui
 	 */
-	const setListenerStore = <
-		K extends NestedKey<T>,
-		P extends NestedValue<T, K>,
-	>(
-		data: P | ((data: P) => P),
-		key?: K,
-	) => {
+	const setListenerStore = (data: T | ((data: T) => T)) => {
 		if (isFunction<any>(data)) {
-			const newData = data(getSnapshot<P>(nameSpace, key));
-			return setDataStore(newData, nameSpace, key);
+			const newData = data(getSnapshot<T>(nameSpace));
+			return setDataStore(newData, nameSpace);
 		}
 		// this allows ts to compile without errors
-		setDataStore(data as any, nameSpace, key);
+		setDataStore(data as any, nameSpace);
 	};
 
 	/** Hook to use to create a usable store with a signal to update whenever the value is changed
