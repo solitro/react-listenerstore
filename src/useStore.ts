@@ -219,7 +219,8 @@ const callAllListeners = (nameSpace: string) => {
 		const children = currentListener?.children;
 		if (children) {
 			for (const key in children) {
-				if (children[key]) listenerQueue.push(children[key]);
+				const child = children[key];
+				if (child) listenerQueue.push(child as ListenersRecord<NestedRecord>);
 			}
 		}
 	}
