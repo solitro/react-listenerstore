@@ -209,6 +209,23 @@ const callListeners = (nameSpace: string, key?: string) => {
 	globalListenerStore[nameSpace].listeners.forEach((listener) => listener());
 };
 
+const callAllListeners = (nameSpace: string) => {
+	const listenerQueue = [globalListenerStore[nameSpace]];
+	const allListeners: Listener[] = [];
+	while (listenerQueue.length) {
+		const currentListener = listenerQueue.shift();
+		const listeners = currentListener?.listeners;
+		if (listeners) allListeners.push(...listeners);
+		const children = currentListener?.children;
+		if (children) {
+			for (const key in children) {
+				if (children[key]) listenerQueue.push(children[key]);
+			}
+		}
+	}
+	allListeners.forEach((listener) => listener());
+};
+
 const setDataStore = <
 	T extends NestedRecord,
 	K extends NestedKey<T>,
@@ -238,6 +255,7 @@ const setDataStore = <
 		}
 	} else {
 		globalDataStore[nameSpace] = data;
+		callAllListeners(nameSpace);
 	}
 	globalDataStore = { ...globalDataStore };
 	callListeners(nameSpace, key);
@@ -319,7 +337,7 @@ const createListenerStore = <T extends NestedRecord>(
 
 		return store;
 	};
-	const listenerStore = shallowCopy(globalDataStore[nameSpace] as T);
+	const listenerStore = globalDataStore[nameSpace] as T;
 	return { useListener, setListenerStore, listenerStore };
 };
 
