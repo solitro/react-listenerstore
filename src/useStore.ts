@@ -1,5 +1,6 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { shallowCopy } from "./shallowCopy";
+import { deprecate } from "util";
 
 export type NestedRecord = Record<string, any>;
 
@@ -338,8 +339,10 @@ const createListenerStore = <T extends NestedRecord>(
 
 		return store;
 	};
-	const listenerStore = globalDataStore[nameSpace] as T;
-	return { useListener, setListenerStore, listenerStore };
+	const listenerStore = shallowCopy(globalDataStore[nameSpace]) as T;
+	const getStore = () => shallowCopy(globalDataStore[nameSpace]) as T;
+
+	return { useListener, setListenerStore, listenerStore, getStore };
 };
 
 export { createListenerStore };
