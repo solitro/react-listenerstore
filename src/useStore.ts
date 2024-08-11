@@ -210,22 +210,17 @@ const callListeners = (nameSpace: string, key?: string) => {
 	globalListenerStore[nameSpace].listeners.forEach((listener) => listener());
 };
 
-const callAllListeners = (nameSpace: string) => {
-	const listenerQueue = [globalListenerStore[nameSpace]];
-	const allListeners: Listener[] = [];
-	while (listenerQueue.length) {
-		const currentListener = listenerQueue.shift();
-		const listeners = currentListener?.listeners;
-		if (listeners) allListeners.push(...listeners);
-		const children = currentListener?.children;
-		if (children) {
-			for (const key in children) {
-				const child = children[key];
-				if (child) listenerQueue.push(child as ListenersRecord<NestedRecord>);
-			}
+const callAllListeners = (nameSpace: string, key: string = "") => {
+	const listenerStore = getCurrentListenerStore(nameSpace, key);
+	const listeners = listenerStore?.listeners;
+	listeners?.forEach((listener) => listener());
+	const children = listenerStore?.children;
+	for (const newKey in children) {
+		const child = children[key];
+		if (child) {
+			callAllListeners(nameSpace, key + "." + newKey);
 		}
 	}
-	allListeners.forEach((listener) => listener());
 };
 
 const setDataStore = <
@@ -257,7 +252,16 @@ const setDataStore = <
 		}
 	} else {
 		globalDataStore[nameSpace] = data;
-		callAllListeners(nameSpace);
+		try {
+			console.log(
+				"calling all listeners",
+				nameSpace,
+				globalListenerStore[nameSpace],
+			);
+			callAllListeners(nameSpace);
+		} catch (e) {
+			console.error(e);
+		}
 	}
 	globalDataStore = { ...globalDataStore };
 	callListeners(nameSpace, key);
@@ -339,10 +343,9 @@ const createListenerStore = <T extends NestedRecord>(
 
 		return store;
 	};
-	const listenerStore = shallowCopy(globalDataStore[nameSpace]) as T;
-	const getStore = () => shallowCopy(globalDataStore[nameSpace]) as T;
+	const listenerStore = globalDataStore[nameSpace] as T;
 
-	return { useListener, setListenerStore, listenerStore, getStore };
+	return { useListener, setListenerStore, listenerStore };
 };
 
 export { createListenerStore };
