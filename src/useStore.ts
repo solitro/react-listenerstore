@@ -252,16 +252,7 @@ const setDataStore = <
 		}
 	} else {
 		globalDataStore[nameSpace] = data;
-		try {
-			console.log(
-				"calling all listeners",
-				nameSpace,
-				globalListenerStore[nameSpace],
-			);
-			callAllListeners(nameSpace);
-		} catch (e) {
-			console.error(e);
-		}
+		callAllListeners(nameSpace);
 	}
 	globalDataStore = { ...globalDataStore };
 	callListeners(nameSpace, key);
