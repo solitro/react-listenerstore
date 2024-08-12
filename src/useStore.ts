@@ -59,6 +59,8 @@ let globalDataStore: GlobalDataStoreType = {};
 
 type Namespace = keyof typeof globalListenerStore;
 
+const allListeners: Record<Namespace, Listener[]> = {};
+
 const getCurrentStore = <T extends NestedRecord, K extends NestedKey<T>>(
 	nameSpace: Namespace,
 	key?: K,
@@ -136,6 +138,9 @@ const addListenerToStore = <T extends NestedRecord, K extends NestedKey<T>>(
 ) => {
 	// step through each store and
 	listener = Array.isArray(listener) ? listener : [listener];
+	allListeners[nameSpace] = [
+		...new Set([...(allListeners?.[nameSpace] || []), ...listener]),
+	];
 	const keys = key?.split(".") || [];
 	let currentListenerStore =
 		shallowCopy(globalListenerStore[nameSpace]) || shallowCopy(listenersRecord);
@@ -162,6 +167,9 @@ const removeListenerFromStore = <
 	nameSpace: Namespace,
 	key?: K,
 ) => {
+	allListeners[nameSpace] = allListeners[nameSpace].filter(
+		(l) => l !== listener,
+	);
 	const keys = key?.split(".") || [];
 	let currentListenerStore =
 		shallowCopy(globalListenerStore[nameSpace]) || shallowCopy(listenersRecord);
@@ -211,16 +219,7 @@ const callListeners = (nameSpace: string, key?: string) => {
 };
 
 const callAllListeners = (nameSpace: string, key: string = "") => {
-	const listenerStore = getCurrentListenerStore(nameSpace, key);
-	const listeners = listenerStore?.listeners;
-	listeners?.forEach((listener) => listener());
-	const children = listenerStore?.children;
-	for (const newKey in children) {
-		const child = children[key];
-		if (child) {
-			callAllListeners(nameSpace, key + "." + newKey);
-		}
-	}
+	allListeners[nameSpace].forEach((listener) => listener());
 };
 
 const setDataStore = <
