@@ -219,7 +219,7 @@ const callListeners = (nameSpace: string, key?: string) => {
 };
 
 const callAllListeners = (nameSpace: string, key: string = "") => {
-	allListeners[nameSpace].forEach((listener) => listener());
+	allListeners?.[nameSpace]?.forEach((listener) => listener());
 };
 
 const setDataStore = <
