@@ -178,7 +178,7 @@ const removeListenerFromStore = <
 		(l) => l !== listener,
 	);
 	for (const key of keys) {
-		let nextStore = currentListenerStore.children?.[key] || {
+		const nextStore = currentListenerStore.children?.[key] || {
 			...listenersRecord,
 		};
 		currentListenerStore.children[key] = nextStore;
@@ -311,8 +311,10 @@ const createListenerStore = <T extends NestedRecord>(
 		 * @type {P}
 		 * Holds the data of the store
 		 */
-		const data = useSyncExternalStore(memoizedSubscribe, () =>
-			getSnapshot<P>(nameSpace, key),
+		const data = useSyncExternalStore(
+			memoizedSubscribe,
+			() => getSnapshot<P>(nameSpace, key),
+			() => getSnapshot<P>(nameSpace, key),
 		);
 
 		/** Function to set the data of the store
