@@ -1,5 +1,5 @@
 import { useMemo, useSyncExternalStore } from "react";
-import { shallowCopy } from "./shallowCopy";
+import { shallowCopy } from "./shallowCopy.js";
 
 export type NestedRecord = Record<string, any>;
 

@@ -1,3 +1,3 @@
-import { createListenerStore } from "./useStore";
+import { createListenerStore } from "./useStore.js";
 
 export { createListenerStore };
