@@ -1,6 +1,5 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { shallowCopy } from "./shallowCopy";
-import { deprecate } from "util";
 
 export type NestedRecord = Record<string, any>;
 
