@@ -141,8 +141,8 @@ const addListenerToStore = <T extends NestedRecord, K extends NestedKey<T>>(
 		...new Set([...(allListeners?.[nameSpace] || []), ...listener]),
 	];
 	const keys = key?.split(".") || [];
-	let currentListenerStore =
-		shallowCopy(globalListenerStore[nameSpace]) || shallowCopy(listenersRecord);
+	let currentListenerStore = globalListenerStore[nameSpace] || listenersRecord;
+	// shallowCopy(globalListenerStore[nameSpace]) || shallowCopy(listenersRecord);
 	globalListenerStore[nameSpace] = currentListenerStore;
 	let listeners = currentListenerStore.listeners;
 	currentListenerStore.listeners = [...new Set([...listeners, ...listener])];
@@ -170,8 +170,8 @@ const removeListenerFromStore = <
 		(l) => l !== listener,
 	);
 	const keys = key?.split(".") || [];
-	let currentListenerStore =
-		shallowCopy(globalListenerStore[nameSpace]) || shallowCopy(listenersRecord);
+	let currentListenerStore = globalListenerStore[nameSpace] || listenersRecord;
+	// shallowCopy(globalListenerStore[nameSpace]) || shallowCopy(listenersRecord);
 	globalListenerStore[nameSpace] = currentListenerStore;
 	currentListenerStore.listeners = currentListenerStore.listeners.filter(
 		(l) => l !== listener,
@@ -242,13 +242,17 @@ const setDataStore = <
 			parentStore = getCurrentStoreParent(nameSpace, keys.join("."));
 			do {
 				currentKey = keys.pop() as string;
-				parentStore[currentKey] = shallowCopy(currentStore);
+				parentStore[currentKey] = currentStore; //shallowCopy(currentStore);
 				currentStore = parentStore;
 				parentStore = getCurrentStoreParent(nameSpace, keys.join("."));
 			} while (currentKey);
-			globalDataStore[nameSpace] = shallowCopy(globalDataStore[nameSpace]);
+			// globalDataStore[nameSpace] = { ...globalDataStore[nameSpace] }; //shallowCopy(globalDataStore[nameSpace]);
 		}
 	} else {
+		for (const key in data) {
+			// @ts-ignore
+			globalDataStore[nameSpace][key] = data[key];
+		}
 		globalDataStore[nameSpace] = data;
 		callAllListeners(nameSpace);
 	}
