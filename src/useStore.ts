@@ -294,14 +294,17 @@ const createListenerStore = <T extends NestedRecord>(
 		setDataStore(data as any, nameSpace);
 	};
 
+	type PossibleValue<V extends PossibleKey> = NestedValue<T, V>;
+	type PossibleKey = NestedKey<T> | undefined;
+
 	/** Hook to use to create a usable store with a signal to update whenever the value is changed
 	 * @param key - The key of the store - should be unique
 	 * @param initStore - The initial value of the store if none exists
 	 * @returns {data, set} - The data and the set function
 	 */
 	const useListener = <
-		P extends NestedValue<T, K>,
-		K extends NestedKey<T> | undefined = undefined,
+		P extends PossibleValue<K>,
+		K extends PossibleKey = undefined,
 	>(
 		key?: K,
 	) => {
